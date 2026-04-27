@@ -1,5 +1,5 @@
 // APP CODE
-//USECASE 5
+//usecase 6
 package com.apps.quantitymeasurement;
 
 public class QuantityMeasurementApp {
@@ -31,28 +31,36 @@ public class QuantityMeasurementApp {
             this.unit = unit;
         }
 
+        public double getValue() {
+            return value;
+        }
+
+        public LengthUnit getUnit() {
+            return unit;
+        }
+
         private double convertToBaseUnit() {
             return value * unit.getFactor();
         }
 
         public Length convertTo(LengthUnit targetUnit) {
             double baseValue = convertToBaseUnit();
-            double convertedValue = baseValue / targetUnit.getFactor();
-            return new Length(convertedValue, targetUnit);
+            double result = baseValue / targetUnit.getFactor();
+            return new Length(result, targetUnit);
         }
 
-        public static double convert(double value,
-                                     LengthUnit source,
-                                     LengthUnit target) {
+        public Length add(Length other) {
+            if (other == null)
+                throw new IllegalArgumentException("Null length");
 
-            if (source == null || target == null)
-                throw new IllegalArgumentException("Unit cannot be null");
+            double totalBase =
+                    this.convertToBaseUnit() +
+                            other.convertToBaseUnit();
 
-            if (!Double.isFinite(value))
-                throw new IllegalArgumentException("Invalid number");
+            double result =
+                    totalBase / this.unit.getFactor();
 
-            double baseValue = value * source.getFactor();
-            return baseValue / target.getFactor();
+            return new Length(result, this.unit);
         }
 
         @Override
@@ -65,9 +73,9 @@ public class QuantityMeasurementApp {
 
             Length other = (Length) obj;
 
-            return Double.compare(
-                    this.convertToBaseUnit(),
-                    other.convertToBaseUnit()) == 0;
+            return Math.abs(
+                    this.convertToBaseUnit()
+                            - other.convertToBaseUnit()) < 0.0001;
         }
 
         @Override
@@ -82,47 +90,32 @@ public class QuantityMeasurementApp {
         return length1.equals(length2);
     }
 
-    public static double demonstrateLengthConversion(
-            double value,
-            Length.LengthUnit fromUnit,
-            Length.LengthUnit toUnit) {
+    public static Length demonstrateLengthAddition(
+            Length length1, Length length2) {
 
-        return Length.convert(value, fromUnit, toUnit);
-    }
-
-    public static Length demonstrateLengthConversion(
-            Length length,
-            Length.LengthUnit toUnit) {
-
-        return length.convertTo(toUnit);
+        return length1.add(length2);
     }
 
     public static void main(String[] args) {
 
-        System.out.println(
-                demonstrateLengthConversion(
-                        1.0,
-                        Length.LengthUnit.FEET,
-                        Length.LengthUnit.INCHES));
+        Length l1 = new Length(1.0,
+                Length.LengthUnit.FEET);
 
-        System.out.println(
-                demonstrateLengthConversion(
-                        3.0,
-                        Length.LengthUnit.YARDS,
-                        Length.LengthUnit.FEET));
+        Length l2 = new Length(12.0,
+                Length.LengthUnit.INCHES);
 
-        System.out.println(
-                demonstrateLengthConversion(
-                        36.0,
-                        Length.LengthUnit.INCHES,
-                        Length.LengthUnit.YARDS));
+        Length sum =
+                demonstrateLengthAddition(l1, l2);
 
-        Length length = new Length(2.0,
+        System.out.println(sum);
+
+        Length l3 = new Length(1.0,
+                Length.LengthUnit.YARDS);
+
+        Length l4 = new Length(3.0,
                 Length.LengthUnit.FEET);
 
         System.out.println(
-                demonstrateLengthConversion(
-                        length,
-                        Length.LengthUnit.INCHES));
+                demonstrateLengthAddition(l3, l4));
     }
 }

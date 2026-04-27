@@ -1,5 +1,5 @@
 // TEST CODE
-//USECASE 5
+//usecase 6
 package com.apps.quantitymeasurement;
 
 import org.junit.jupiter.api.Test;
@@ -11,100 +11,134 @@ import com.apps.quantitymeasurement.QuantityMeasurementApp.Length.LengthUnit;
 public class QuantityMeasurementAppTest {
 
     @Test
-    public void testFeetToInches() {
-        assertEquals(12.0,
-                Length.convert(1, LengthUnit.FEET, LengthUnit.INCHES),
-                0.0001);
+    public void testFeetPlusFeet() {
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(2, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(3, LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testInchesToFeet() {
-        assertEquals(2.0,
-                Length.convert(24, LengthUnit.INCHES, LengthUnit.FEET),
-                0.0001);
+    public void testInchPlusInch() {
+        Length a = new Length(6, LengthUnit.INCHES);
+        Length b = new Length(6, LengthUnit.INCHES);
+
+        assertEquals(
+                new Length(12, LengthUnit.INCHES),
+                a.add(b));
     }
 
     @Test
-    public void testYardsToInches() {
-        assertEquals(36.0,
-                Length.convert(1, LengthUnit.YARDS, LengthUnit.INCHES),
-                0.0001);
+    public void testFeetPlusInches() {
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(12, LengthUnit.INCHES);
+
+        assertEquals(
+                new Length(2, LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testInchesToYards() {
-        assertEquals(2.0,
-                Length.convert(72, LengthUnit.INCHES, LengthUnit.YARDS),
-                0.0001);
+    public void testInchPlusFeet() {
+        Length a = new Length(12, LengthUnit.INCHES);
+        Length b = new Length(1, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(24, LengthUnit.INCHES),
+                a.add(b));
     }
 
     @Test
-    public void testCentimetersToInches() {
-        assertEquals(1.0,
-                Length.convert(2.54, LengthUnit.CENTIMETERS,
-                        LengthUnit.INCHES),
-                0.001);
+    public void testYardPlusFeet() {
+        Length a = new Length(1, LengthUnit.YARDS);
+        Length b = new Length(3, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(2, LengthUnit.YARDS),
+                a.add(b));
     }
 
     @Test
-    public void testFeetToYards() {
-        assertEquals(2.0,
-                Length.convert(6, LengthUnit.FEET, LengthUnit.YARDS),
-                0.0001);
+    public void testCentimeterPlusInch() {
+        Length a = new Length(2.54,
+                LengthUnit.CENTIMETERS);
+
+        Length b = new Length(1,
+                LengthUnit.INCHES);
+
+        assertEquals(
+                new Length(5.08,
+                        LengthUnit.CENTIMETERS),
+                a.add(b));
     }
 
     @Test
-    public void testZeroValue() {
-        assertEquals(0.0,
-                Length.convert(0, LengthUnit.FEET, LengthUnit.INCHES),
-                0.0001);
+    public void testWithZero() {
+        Length a = new Length(5, LengthUnit.FEET);
+        Length b = new Length(0, LengthUnit.INCHES);
+
+        assertEquals(
+                new Length(5, LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testNegativeValue() {
-        assertEquals(-12.0,
-                Length.convert(-1, LengthUnit.FEET, LengthUnit.INCHES),
-                0.0001);
+    public void testNegativeValues() {
+        Length a = new Length(5, LengthUnit.FEET);
+        Length b = new Length(-2, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(3, LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testRoundTrip() {
-        double result =
-                Length.convert(
-                        Length.convert(5, LengthUnit.FEET,
-                                LengthUnit.INCHES),
-                        LengthUnit.INCHES,
-                        LengthUnit.FEET);
+    public void testNullOperand() {
+        Length a = new Length(1, LengthUnit.FEET);
 
-        assertEquals(5.0, result, 0.0001);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> a.add(null));
     }
 
     @Test
-    public void testSameUnit() {
-        assertEquals(5.0,
-                Length.convert(5, LengthUnit.FEET, LengthUnit.FEET),
-                0.0001);
+    public void testLargeValues() {
+        Length a = new Length(1000000,
+                LengthUnit.FEET);
+
+        Length b = new Length(1000000,
+                LengthUnit.FEET);
+
+        assertEquals(
+                new Length(2000000,
+                        LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testNullUnitThrows() {
-        assertThrows(IllegalArgumentException.class, () ->
-                Length.convert(5, null, LengthUnit.FEET));
+    public void testSmallValues() {
+        Length a = new Length(0.001,
+                LengthUnit.FEET);
+
+        Length b = new Length(0.002,
+                LengthUnit.FEET);
+
+        assertEquals(
+                new Length(0.003,
+                        LengthUnit.FEET),
+                a.add(b));
     }
 
     @Test
-    public void testNaNThrows() {
-        assertThrows(IllegalArgumentException.class, () ->
-                Length.convert(Double.NaN,
-                        LengthUnit.FEET,
-                        LengthUnit.INCHES));
-    }
+    public void testCommutativeProperty() {
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(12, LengthUnit.INCHES);
 
-    @Test
-    public void testInfiniteThrows() {
-        assertThrows(IllegalArgumentException.class, () ->
-                Length.convert(Double.POSITIVE_INFINITY,
-                        LengthUnit.FEET,
-                        LengthUnit.INCHES));
+        assertTrue(
+                a.add(b).equals(
+                        new Length(2,
+                                LengthUnit.FEET)));
     }
 }
