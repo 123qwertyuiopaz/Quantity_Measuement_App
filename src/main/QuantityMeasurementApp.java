@@ -1,5 +1,5 @@
 // APP CODE
-//usecase 6
+//usecase 7
 package com.apps.quantitymeasurement;
 
 public class QuantityMeasurementApp {
@@ -44,38 +44,50 @@ public class QuantityMeasurementApp {
         }
 
         public Length convertTo(LengthUnit targetUnit) {
-            double baseValue = convertToBaseUnit();
-            double result = baseValue / targetUnit.getFactor();
+            double result =
+                    convertToBaseUnit() /
+                            targetUnit.getFactor();
+
             return new Length(result, targetUnit);
         }
 
         public Length add(Length other) {
-            if (other == null)
-                throw new IllegalArgumentException("Null length");
+            return add(other, this.unit);
+        }
+
+        public Length add(Length other,
+                          LengthUnit targetUnit) {
+
+            if (other == null || targetUnit == null)
+                throw new IllegalArgumentException();
 
             double totalBase =
                     this.convertToBaseUnit() +
                             other.convertToBaseUnit();
 
             double result =
-                    totalBase / this.unit.getFactor();
+                    totalBase /
+                            targetUnit.getFactor();
 
-            return new Length(result, this.unit);
+            return new Length(result, targetUnit);
         }
 
         @Override
         public boolean equals(Object obj) {
+
             if (this == obj)
                 return true;
 
-            if (obj == null || getClass() != obj.getClass())
+            if (obj == null ||
+                    getClass() != obj.getClass())
                 return false;
 
             Length other = (Length) obj;
 
             return Math.abs(
-                    this.convertToBaseUnit()
-                            - other.convertToBaseUnit()) < 0.0001;
+                    this.convertToBaseUnit() -
+                            other.convertToBaseUnit())
+                    < 0.0001;
         }
 
         @Override
@@ -84,38 +96,37 @@ public class QuantityMeasurementApp {
         }
     }
 
-    public static boolean demonstrateLengthEquality(
-            Length length1, Length length2) {
-
-        return length1.equals(length2);
-    }
-
     public static Length demonstrateLengthAddition(
-            Length length1, Length length2) {
+            Length length1,
+            Length length2,
+            Length.LengthUnit targetUnit) {
 
-        return length1.add(length2);
+        return length1.add(length2, targetUnit);
     }
 
     public static void main(String[] args) {
 
-        Length l1 = new Length(1.0,
-                Length.LengthUnit.FEET);
+        Length a =
+                new Length(1,
+                        Length.LengthUnit.FEET);
 
-        Length l2 = new Length(12.0,
-                Length.LengthUnit.INCHES);
-
-        Length sum =
-                demonstrateLengthAddition(l1, l2);
-
-        System.out.println(sum);
-
-        Length l3 = new Length(1.0,
-                Length.LengthUnit.YARDS);
-
-        Length l4 = new Length(3.0,
-                Length.LengthUnit.FEET);
+        Length b =
+                new Length(12,
+                        Length.LengthUnit.INCHES);
 
         System.out.println(
-                demonstrateLengthAddition(l3, l4));
+                demonstrateLengthAddition(
+                        a, b,
+                        Length.LengthUnit.FEET));
+
+        System.out.println(
+                demonstrateLengthAddition(
+                        a, b,
+                        Length.LengthUnit.INCHES));
+
+        System.out.println(
+                demonstrateLengthAddition(
+                        a, b,
+                        Length.LengthUnit.YARDS));
     }
 }

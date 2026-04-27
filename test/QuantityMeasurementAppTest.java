@@ -1,5 +1,5 @@
 // TEST CODE
-//usecase 6
+// USECASE 7
 package com.apps.quantitymeasurement;
 
 import org.junit.jupiter.api.Test;
@@ -11,67 +11,65 @@ import com.apps.quantitymeasurement.QuantityMeasurementApp.Length.LengthUnit;
 public class QuantityMeasurementAppTest {
 
     @Test
-    public void testFeetPlusFeet() {
-        Length a = new Length(1, LengthUnit.FEET);
-        Length b = new Length(2, LengthUnit.FEET);
-
-        assertEquals(
-                new Length(3, LengthUnit.FEET),
-                a.add(b));
-    }
-
-    @Test
-    public void testInchPlusInch() {
-        Length a = new Length(6, LengthUnit.INCHES);
-        Length b = new Length(6, LengthUnit.INCHES);
-
-        assertEquals(
-                new Length(12, LengthUnit.INCHES),
-                a.add(b));
-    }
-
-    @Test
-    public void testFeetPlusInches() {
+    public void testAddTargetFeet() {
         Length a = new Length(1, LengthUnit.FEET);
         Length b = new Length(12, LengthUnit.INCHES);
 
         assertEquals(
                 new Length(2, LengthUnit.FEET),
-                a.add(b));
+                a.add(b, LengthUnit.FEET));
     }
 
     @Test
-    public void testInchPlusFeet() {
-        Length a = new Length(12, LengthUnit.INCHES);
-        Length b = new Length(1, LengthUnit.FEET);
+    public void testAddTargetInches() {
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(12, LengthUnit.INCHES);
 
         assertEquals(
                 new Length(24, LengthUnit.INCHES),
-                a.add(b));
+                a.add(b, LengthUnit.INCHES));
     }
 
     @Test
-    public void testYardPlusFeet() {
-        Length a = new Length(1, LengthUnit.YARDS);
-        Length b = new Length(3, LengthUnit.FEET);
+    public void testAddTargetYards() {
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(12, LengthUnit.INCHES);
 
         assertEquals(
-                new Length(2, LengthUnit.YARDS),
-                a.add(b));
+                new Length(0.6667, LengthUnit.YARDS),
+                a.add(b, LengthUnit.YARDS));
     }
 
     @Test
-    public void testCentimeterPlusInch() {
-        Length a = new Length(2.54,
-                LengthUnit.CENTIMETERS);
-
-        Length b = new Length(1,
-                LengthUnit.INCHES);
+    public void testAddTargetCentimeters() {
+        Length a = new Length(1, LengthUnit.INCHES);
+        Length b = new Length(1, LengthUnit.INCHES);
 
         assertEquals(
                 new Length(5.08,
                         LengthUnit.CENTIMETERS),
-                a.add(b));
+                a.add(b,
+                        LengthUnit.CENTIMETERS));
+    }
+
+    @Test
+    public void testSameAsFirstOperand() {
+        Length a = new Length(2, LengthUnit.YARDS);
+        Length b = new Length(3, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(3, LengthUnit.YARDS),
+                a.add(b, LengthUnit.YARDS));
+    }
+
+    @Test
+    public void testSameAsSecondOperand() {
+        Length a = new Length(2, LengthUnit.YARDS);
+        Length b = new Length(3, LengthUnit.FEET);
+
+        assertEquals(
+                new Length(9, LengthUnit.FEET),
+                a.add(b, LengthUnit.FEET));
     }
 
     @Test
@@ -80,65 +78,59 @@ public class QuantityMeasurementAppTest {
         Length b = new Length(0, LengthUnit.INCHES);
 
         assertEquals(
-                new Length(5, LengthUnit.FEET),
-                a.add(b));
+                new Length(1.6667,
+                        LengthUnit.YARDS),
+                a.add(b, LengthUnit.YARDS));
     }
 
     @Test
-    public void testNegativeValues() {
+    public void testNegativeValue() {
         Length a = new Length(5, LengthUnit.FEET);
         Length b = new Length(-2, LengthUnit.FEET);
 
         assertEquals(
-                new Length(3, LengthUnit.FEET),
-                a.add(b));
+                new Length(36,
+                        LengthUnit.INCHES),
+                a.add(b, LengthUnit.INCHES));
     }
 
     @Test
-    public void testNullOperand() {
-        Length a = new Length(1, LengthUnit.FEET);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> a.add(null));
-    }
-
-    @Test
-    public void testLargeValues() {
-        Length a = new Length(1000000,
-                LengthUnit.FEET);
-
-        Length b = new Length(1000000,
-                LengthUnit.FEET);
-
-        assertEquals(
-                new Length(2000000,
-                        LengthUnit.FEET),
-                a.add(b));
-    }
-
-    @Test
-    public void testSmallValues() {
-        Length a = new Length(0.001,
-                LengthUnit.FEET);
-
-        Length b = new Length(0.002,
-                LengthUnit.FEET);
-
-        assertEquals(
-                new Length(0.003,
-                        LengthUnit.FEET),
-                a.add(b));
-    }
-
-    @Test
-    public void testCommutativeProperty() {
+    public void testNullTargetUnit() {
         Length a = new Length(1, LengthUnit.FEET);
         Length b = new Length(12, LengthUnit.INCHES);
 
-        assertTrue(
-                a.add(b).equals(
-                        new Length(2,
-                                LengthUnit.FEET)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> a.add(b, null));
+    }
+
+    @Test
+    public void testLargeToSmallScale() {
+        Length a = new Length(1000,
+                LengthUnit.FEET);
+
+        Length b = new Length(500,
+                LengthUnit.FEET);
+
+        assertEquals(
+                new Length(18000,
+                        LengthUnit.INCHES),
+                a.add(b,
+                        LengthUnit.INCHES));
+    }
+
+    @Test
+    public void testSmallToLargeScale() {
+        Length a = new Length(12,
+                LengthUnit.INCHES);
+
+        Length b = new Length(12,
+                LengthUnit.INCHES);
+
+        assertEquals(
+                new Length(0.6667,
+                        LengthUnit.YARDS),
+                a.add(b,
+                        LengthUnit.YARDS));
     }
 }
