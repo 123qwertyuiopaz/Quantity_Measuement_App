@@ -1,37 +1,89 @@
-
-//USECASE 1
+// APP CODE
 //USECASE 3
 package com.apps.quantitymeasurement;
 
-public class quantitymeasurementapp {
+public class QuantityMeasurementApp {
 
-    public static class Feet {
-        private final double value;
+    public static class Length {
 
-        public Feet(double value) {
+        private double value;
+        private LengthUnit unit;
+
+        // Enum for Units
+        public enum LengthUnit {
+            FEET(12.0),
+            INCHES(1.0);
+
+            private final double conversionFactor;
+
+            LengthUnit(double conversionFactor) {
+                this.conversionFactor = conversionFactor;
+            }
+
+            public double getConversionFactor() {
+                return conversionFactor;
+            }
+        }
+
+        public Length(double value, LengthUnit unit) {
             this.value = value;
+            this.unit = unit;
+        }
+
+        // Convert to base unit (inches)
+        private double convertToBaseUnit() {
+            return value * unit.getConversionFactor();
+        }
+
+        public boolean compare(Length other) {
+            return Double.compare(this.convertToBaseUnit(),
+                    other.convertToBaseUnit()) == 0;
         }
 
         @Override
         public boolean equals(Object obj) {
-
-            if (this == obj) {
+            if (this == obj)
                 return true;
-            }
-            if (obj == null) {
+
+            if (obj == null)
                 return false;
-            }
-            if (getClass() != obj.getClass()) {
+
+            if (getClass() != obj.getClass())
                 return false;
-            }
-            Feet other = (Feet) obj;
-            return Double.compare(this.value, other.value) == 0;
+
+            Length other = (Length) obj;
+            return compare(other);
         }
     }
-    public static void main(String[] args) {
-        Feet f1 = new Feet(1.0);
-        Feet f2 = new Feet(1.0);
 
-        System.out.println("Are equal? " + f1.equals(f2));
+    public static boolean demonstrateLengthEquality(Length length1, Length length2) {
+        return length1.equals(length2);
+    }
+
+    public static void demonstrateFeetEquality() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(1.0, Length.LengthUnit.FEET);
+
+        System.out.println("1 ft == 1 ft : " + length1.equals(length2));
+    }
+
+    public static void demonstrateInchesEquality() {
+        Length length1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length length2 = new Length(1.0, Length.LengthUnit.INCHES);
+
+        System.out.println("1 inch == 1 inch : " + length1.equals(length2));
+    }
+
+    public static void demonstrateFeetInchesComparison() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(12.0, Length.LengthUnit.INCHES);
+
+        System.out.println("1 ft == 12 inch : " + length1.equals(length2));
+    }
+
+    public static void main(String[] args) {
+        demonstrateFeetEquality();
+        demonstrateInchesEquality();
+        demonstrateFeetInchesComparison();
     }
 }
