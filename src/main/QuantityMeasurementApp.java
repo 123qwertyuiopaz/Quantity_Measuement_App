@@ -1,12 +1,9 @@
 // APP CODE
-//USECASE 8
+//USECASE 9
 package com.apps.quantitymeasurement;
 
 enum LengthUnit {
-    FEET(12.0),
-    INCHES(1.0),
-    YARDS(36.0),
-    CENTIMETERS(0.393701);
+    FEET(12.0), INCHES(1.0), YARDS(36.0), CENTIMETERS(0.393701);
 
     private final double factor;
 
@@ -14,48 +11,54 @@ enum LengthUnit {
         this.factor = factor;
     }
 
-    public double getConversionFactor() {
-        return factor;
-    }
-
-    public double convertToBaseUnit(double value) {
+    public double toBase(double value) {
         return value * factor;
     }
 
-    public double convertFromBaseUnit(double baseValue) {
-        return baseValue / factor;
+    public double fromBase(double base) {
+        return base / factor;
+    }
+}
+
+enum WeightUnit {
+    KILOGRAM(1.0),
+    GRAM(0.001),
+    POUND(0.453592);
+
+    private final double factor;
+
+    WeightUnit(double factor) {
+        this.factor = factor;
+    }
+
+    public double toBase(double value) {
+        return value * factor;
+    }
+
+    public double fromBase(double base) {
+        return base / factor;
     }
 }
 
 public class QuantityMeasurementApp {
 
     public static class Length {
-
         private double value;
         private LengthUnit unit;
 
         public Length(double value, LengthUnit unit) {
-            if (unit == null || !Double.isFinite(value))
-                throw new IllegalArgumentException();
-
             this.value = value;
             this.unit = unit;
         }
 
-        public double getValue() {
-            return value;
+        private double base() {
+            return unit.toBase(value);
         }
 
-        public LengthUnit getUnit() {
-            return unit;
-        }
-
-        public Length convertTo(LengthUnit targetUnit) {
-            double base = unit.convertToBaseUnit(value);
-            double result =
-                    targetUnit.convertFromBaseUnit(base);
-
-            return new Length(result, targetUnit);
+        public Length convertTo(LengthUnit target) {
+            return new Length(
+                    target.fromBase(base()),
+                    target);
         }
 
         public Length add(Length other) {
@@ -63,67 +66,101 @@ public class QuantityMeasurementApp {
         }
 
         public Length add(Length other,
-                          LengthUnit targetUnit) {
+                          LengthUnit target) {
 
-            if (other == null || targetUnit == null)
-                throw new IllegalArgumentException();
+            double total =
+                    this.base() + other.base();
 
-            double totalBase =
-                    this.unit.convertToBaseUnit(this.value)
-                            + other.unit.convertToBaseUnit(other.value);
-
-            double result =
-                    targetUnit.convertFromBaseUnit(totalBase);
-
-            return new Length(result, targetUnit);
+            return new Length(
+                    target.fromBase(total),
+                    target);
         }
 
-        private boolean compare(Length other) {
-            double first =
-                    unit.convertToBaseUnit(value);
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof Length))
+                return false;
 
-            double second =
-                    other.unit.convertToBaseUnit(
-                            other.value);
+            Length other = (Length) obj;
 
-            return Math.abs(first - second) < 0.0001;
+            return Math.abs(
+                    this.base() -
+                            other.base()) < 0.0001;
+        }
+    }
+
+    public static class Weight {
+        private double value;
+        private WeightUnit unit;
+
+        public Weight(double value,
+                      WeightUnit unit) {
+
+            this.value = value;
+            this.unit = unit;
+        }
+
+        private double base() {
+            return unit.toBase(value);
+        }
+
+        public Weight convertTo(
+                WeightUnit target) {
+
+            return new Weight(
+                    target.fromBase(base()),
+                    target);
+        }
+
+        public Weight add(Weight other) {
+            return add(other, this.unit);
+        }
+
+        public Weight add(Weight other,
+                          WeightUnit target) {
+
+            double total =
+                    this.base() + other.base();
+
+            return new Weight(
+                    target.fromBase(total),
+                    target);
         }
 
         @Override
         public boolean equals(Object obj) {
 
-            if (this == obj)
-                return true;
-
-            if (obj == null ||
-                    getClass() != obj.getClass())
+            if (this == obj) return true;
+            if (!(obj instanceof Weight))
                 return false;
 
-            return compare((Length) obj);
-        }
+            Weight other = (Weight) obj;
 
-        @Override
-        public String toString() {
-            return value + " " + unit;
+            return Math.abs(
+                    this.base() -
+                            other.base()) < 0.0001;
         }
     }
 
     public static void main(String[] args) {
 
-        Length a = new Length(1, LengthUnit.FEET);
-        Length b = new Length(12, LengthUnit.INCHES);
+        Weight w1 =
+                new Weight(1,
+                        WeightUnit.KILOGRAM);
 
-        System.out.println(a.convertTo(
-                LengthUnit.INCHES));
-
-        System.out.println(a.add(
-                b, LengthUnit.FEET));
+        Weight w2 =
+                new Weight(1000,
+                        WeightUnit.GRAM);
 
         System.out.println(
-                new Length(36,
-                        LengthUnit.INCHES)
-                        .equals(
-                                new Length(1,
-                                        LengthUnit.YARDS)));
+                w1.equals(w2));
+
+        System.out.println(
+                w1.add(w2));
+
+        System.out.println(
+                w1.convertTo(
+                        WeightUnit.POUND));
     }
 }
