@@ -1,49 +1,89 @@
-//USECASE 1
-
+// APP CODE
+//USECASE 3
 package com.apps.quantitymeasurement;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+public class QuantityMeasurementApp {
 
-import com.apps.quantitymeasurement.quantitymeasurementapp.Feet;
+    public static class Length {
 
-public class QuantityMeasurementAppTest {
+        private double value;
+        private LengthUnit unit;
 
-    @Test
-    public void testFeetEquality_SameValue() {
-        Feet f1 = new Feet(1.0);
-        Feet f2 = new Feet(1.0);
+        // Enum for Units
+        public enum LengthUnit {
+            FEET(12.0),
+            INCHES(1.0);
 
-        assertTrue(f1.equals(f2));
+            private final double conversionFactor;
+
+            LengthUnit(double conversionFactor) {
+                this.conversionFactor = conversionFactor;
+            }
+
+            public double getConversionFactor() {
+                return conversionFactor;
+            }
+        }
+
+        public Length(double value, LengthUnit unit) {
+            this.value = value;
+            this.unit = unit;
+        }
+
+        // Convert to base unit (inches)
+        private double convertToBaseUnit() {
+            return value * unit.getConversionFactor();
+        }
+
+        public boolean compare(Length other) {
+            return Double.compare(this.convertToBaseUnit(),
+                    other.convertToBaseUnit()) == 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+
+            if (obj == null)
+                return false;
+
+            if (getClass() != obj.getClass())
+                return false;
+
+            Length other = (Length) obj;
+            return compare(other);
+        }
     }
 
-    @Test
-    public void testFeetEquality_DifferentValue() {
-        Feet f1 = new Feet(1.0);
-        Feet f2 = new Feet(2.0);
-
-        assertFalse(f1.equals(f2));
+    public static boolean demonstrateLengthEquality(Length length1, Length length2) {
+        return length1.equals(length2);
     }
 
-    @Test
-    public void testFeetEquality_NullComparison() {
-        Feet f1 = new Feet(1.0);
+    public static void demonstrateFeetEquality() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(1.0, Length.LengthUnit.FEET);
 
-        assertFalse(f1.equals(null));
+        System.out.println("1 ft == 1 ft : " + length1.equals(length2));
     }
 
-    @Test
-    public void testFeetEquality_DifferentClass() {
-        Feet f1 = new Feet(1.0);
-        String notFeet = "1.0";
+    public static void demonstrateInchesEquality() {
+        Length length1 = new Length(1.0, Length.LengthUnit.INCHES);
+        Length length2 = new Length(1.0, Length.LengthUnit.INCHES);
 
-        assertFalse(f1.equals(notFeet));
+        System.out.println("1 inch == 1 inch : " + length1.equals(length2));
     }
 
-    @Test
-    public void testFeetEquality_SameReference() {
-        Feet f1 = new Feet(1.0);
+    public static void demonstrateFeetInchesComparison() {
+        Length length1 = new Length(1.0, Length.LengthUnit.FEET);
+        Length length2 = new Length(12.0, Length.LengthUnit.INCHES);
 
-        assertTrue(f1.equals(f1));
+        System.out.println("1 ft == 12 inch : " + length1.equals(length2));
+    }
+
+    public static void main(String[] args) {
+        demonstrateFeetEquality();
+        demonstrateInchesEquality();
+        demonstrateFeetInchesComparison();
     }
 }
