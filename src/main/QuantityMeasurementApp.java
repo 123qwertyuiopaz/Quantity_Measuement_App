@@ -1,6 +1,31 @@
 // APP CODE
-//usecase 7
+//USECASE 8
 package com.apps.quantitymeasurement;
+
+enum LengthUnit {
+    FEET(12.0),
+    INCHES(1.0),
+    YARDS(36.0),
+    CENTIMETERS(0.393701);
+
+    private final double factor;
+
+    LengthUnit(double factor) {
+        this.factor = factor;
+    }
+
+    public double getConversionFactor() {
+        return factor;
+    }
+
+    public double convertToBaseUnit(double value) {
+        return value * factor;
+    }
+
+    public double convertFromBaseUnit(double baseValue) {
+        return baseValue / factor;
+    }
+}
 
 public class QuantityMeasurementApp {
 
@@ -9,24 +34,10 @@ public class QuantityMeasurementApp {
         private double value;
         private LengthUnit unit;
 
-        public enum LengthUnit {
-            FEET(12.0),
-            INCHES(1.0),
-            YARDS(36.0),
-            CENTIMETERS(0.393701);
-
-            private final double factor;
-
-            LengthUnit(double factor) {
-                this.factor = factor;
-            }
-
-            public double getFactor() {
-                return factor;
-            }
-        }
-
         public Length(double value, LengthUnit unit) {
+            if (unit == null || !Double.isFinite(value))
+                throw new IllegalArgumentException();
+
             this.value = value;
             this.unit = unit;
         }
@@ -39,14 +50,10 @@ public class QuantityMeasurementApp {
             return unit;
         }
 
-        private double convertToBaseUnit() {
-            return value * unit.getFactor();
-        }
-
         public Length convertTo(LengthUnit targetUnit) {
+            double base = unit.convertToBaseUnit(value);
             double result =
-                    convertToBaseUnit() /
-                            targetUnit.getFactor();
+                    targetUnit.convertFromBaseUnit(base);
 
             return new Length(result, targetUnit);
         }
@@ -62,14 +69,24 @@ public class QuantityMeasurementApp {
                 throw new IllegalArgumentException();
 
             double totalBase =
-                    this.convertToBaseUnit() +
-                            other.convertToBaseUnit();
+                    this.unit.convertToBaseUnit(this.value)
+                            + other.unit.convertToBaseUnit(other.value);
 
             double result =
-                    totalBase /
-                            targetUnit.getFactor();
+                    targetUnit.convertFromBaseUnit(totalBase);
 
             return new Length(result, targetUnit);
+        }
+
+        private boolean compare(Length other) {
+            double first =
+                    unit.convertToBaseUnit(value);
+
+            double second =
+                    other.unit.convertToBaseUnit(
+                            other.value);
+
+            return Math.abs(first - second) < 0.0001;
         }
 
         @Override
@@ -82,12 +99,7 @@ public class QuantityMeasurementApp {
                     getClass() != obj.getClass())
                 return false;
 
-            Length other = (Length) obj;
-
-            return Math.abs(
-                    this.convertToBaseUnit() -
-                            other.convertToBaseUnit())
-                    < 0.0001;
+            return compare((Length) obj);
         }
 
         @Override
@@ -96,37 +108,22 @@ public class QuantityMeasurementApp {
         }
     }
 
-    public static Length demonstrateLengthAddition(
-            Length length1,
-            Length length2,
-            Length.LengthUnit targetUnit) {
-
-        return length1.add(length2, targetUnit);
-    }
-
     public static void main(String[] args) {
 
-        Length a =
-                new Length(1,
-                        Length.LengthUnit.FEET);
+        Length a = new Length(1, LengthUnit.FEET);
+        Length b = new Length(12, LengthUnit.INCHES);
 
-        Length b =
-                new Length(12,
-                        Length.LengthUnit.INCHES);
+        System.out.println(a.convertTo(
+                LengthUnit.INCHES));
 
-        System.out.println(
-                demonstrateLengthAddition(
-                        a, b,
-                        Length.LengthUnit.FEET));
+        System.out.println(a.add(
+                b, LengthUnit.FEET));
 
         System.out.println(
-                demonstrateLengthAddition(
-                        a, b,
-                        Length.LengthUnit.INCHES));
-
-        System.out.println(
-                demonstrateLengthAddition(
-                        a, b,
-                        Length.LengthUnit.YARDS));
+                new Length(36,
+                        LengthUnit.INCHES)
+                        .equals(
+                                new Length(1,
+                                        LengthUnit.YARDS)));
     }
 }
